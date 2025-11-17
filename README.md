@@ -1,0 +1,2 @@
+# geopoliticapp
+APP GEOPOLITICS
