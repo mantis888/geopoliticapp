@@ -10,12 +10,10 @@
 <body>
   <header>
     <h1>Geopoliticapp</h1>
-    <p class="subtitle">Toca cualquier país para recibir alertas en tiempo real</p>
+    <p class="subtitle">Toca cualquier país para recibir alertas</p>
   </header>
 
-  <div id="map-container">
-    <object data="assets/world.svg" type="image/svg+xml" id="world-map"></object>
-  </div>
+  <div id="map-container"></div>
 
   <div id="popup" class="hidden">
     <h2 id="country-name"></h2>
@@ -24,7 +22,44 @@
     <button id="close-btn">No, gracias</button>
   </div>
 
-  <script src="js/map.js"></script>
+  <script>
+    // CARGAR SVG DIRECTAMENTE (así sí funciona el clic)
+    fetch('assets/world.svg')
+      .then(r => r.text())
+      .then(text => {
+        document.getElementById('map-container').innerHTML = text;
+
+        const svg = document.querySelector('#map-container svg');
+        svg.style.width = '100%';
+        svg.style.height = '100%';
+
+        // ZOOM Y PAN
+        svgPanZoom(svg, {
+          zoomEnabled: true,
+          controlIconsEnabled: true,
+          fit: true,
+          center: true,
+          minZoom: 1,
+          maxZoom: 30
+        });
+
+        // CLIC EN PAÍS → POPUP
+        svg.addEventListener('click', e => {
+          const path = e.target.closest('path');
+          if (path && path.getAttribute('data-name')) {
+            document.getElementById('country-name').textContent = path.getAttribute('data-name');
+            document.getElementById('popup').classList.remove('hidden');
+          }
+        });
+
+        // HOVER CORRECTO
+        document.querySelectorAll('path').forEach(p => {
+          p.style.transition = 'fill 0.3s';
+          p.addEventListener('mouseenter', () => p.style.fill = '#60a5fa');
+          p.addEventListener('mouseleave', () => p.style.fill = '#1e293b');
+        });
+      });
+  </script>
   <script src="js/popup.js"></script>
 </body>
 </html>
