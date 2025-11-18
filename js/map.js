@@ -28,3 +28,12 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+// Ajuste para el mapa completo de simplemaps
+const svgDoc = mapObject.contentDocument;
+if (svgDoc) {
+  const paths = svgDoc.querySelectorAll("path[data-name]");
+  paths.forEach(path => {
+    const countryName = path.getAttribute("data-name");
+    path.setAttribute("title", countryName); // Para el popup
+  });
+}
