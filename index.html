@@ -1,100 +1,29 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
   <meta charset="utf-8">
   <title>Geopoliticapp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <style>
-    body { margin:0; font-family: -apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:#0f172a; color:#e2e8f0; text-align:center; padding:20px; }
-    h1 { font-size: 3.5em; margin:20px 0; background: linear-gradient(90deg, #3b82f6, #8b5cf6); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    p { font-size: 1.3em; margin:15px 0; opacity:0.9; }
-    #map { height: 70vh; width: 95vw; max-width: 1000px; margin: 30px auto; border-radius: 16px; overflow: hidden; box-shadow: 0 20px 40px rgba(0,0,0,0.5); }
-    #popup { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: #1e293b; padding: 30px; border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.7); z-index: 9999; display: none; max-width: 90%; text-align: center; }
-    #popup h2 { margin: 0 0 15px; font-size: 2.2em; color: #60a5fa; }
-    #close { background: #ef4444; color: white; border: none; padding: 12px 24px; border-radius: 12px; font-size: 1.1em; cursor: pointer; margin-top: 15px; }
-    #subscribe { background: #10b981; color: white; border: none; padding: 14px 30px; border-radius: 12px; font-size: 1.3em; cursor: pointer; margin: 20px 10px 0; }
-  </style>
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-  <h1>Geopoliticapp</h1>
-  <p>El agregador centralizado de geopolítica que estabas esperando</p>
-  <p>Toca cualquier parte del mapa para suscribirte a un país</p>
+  <header>
+    <h1>Geopoliticapp</h1>
+    <p class="subtitle">Toca cualquier país para recibir alertas geopolíticas en tiempo real</p>
+  </header>
 
-  <div id="map"></div>
-
-  <!-- Popup de suscripción -->
-  <div id="popup">
-    <h2 id="countryName">País</h2>
-    <p>¿Quieres recibir notificaciones cada vez que haya novedades geopolíticas importantes?</p>
-    <button id="subscribe">Sí, suscríbeme</button>
-    <button id="close">No, gracias</button>
+  <div id="map-container">
+    <object data="assets/world.svg" type="image/svg+xml" id="world-map"></object>
   </div>
 
-  <!-- Librería Leaflet para el mapa -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <div id="popup" class="hidden">
+    <h2 id="country-name"></h2>
+    <p>¿Quieres recibir notificaciones de este país?</p>
+    <button id="subscribe-btn">Sí, suscríbeme</button>
+    <button id="close-btn">No, gracias</button>
+  </div>
 
-  <script>
-    // Inicializar mapa de OpenStreetMap
-    const map = L.map('map').setView([20, 0], 2); // Vista mundial
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // TODOS LOS PAÍSES DEL MUNDO (196 + extras)
-    const countries = {
-      "Afganistán":"Afganistán","Albania":"Albania","Alemania":"Alemania","Andorra":"Andorra","Angola":"Angola","Antigua y Barbuda":"Antigua y Barbuda",
-      "Arabia Saudita":"Arabia Saudita","Argelia":"Argelia","Argentina":"Argentina","Armenia":"Armenia","Australia":"Australia","Austria":"Austria",
-      "Azerbaiyán":"Azerbaiyán","Bahamas":"Bahamas","Bangladés":"Bangladés","Barbados":"Barbados","Baréin":"Baréin","Bélgica":"Bélgica",
-      "Belice":"Belice","Benín":"Benín","Bielorrusia":"Bielorrusia","Birmania":"Myanmar","Bolivia":"Bolivia","Bosnia y Herzegovina":"Bosnia y Herzegovina",
-      "Botsuana":"Botsuana","Brasil":"Brasil","Brunéi":"Brunéi","Bulgaria":"Bulgaria","Burkina Faso":"Burkina Faso","Burundi":"Burundi",
-      "Bután":"Bután","Cabo Verde":"Cabo Verde","Camboya":"Camboya","Camerún":"Camerún","Canadá":"Canadá","Catar":"Catar","Chad":"Chad",
-      "Chile":"Chile","China":"China","Chipre":"Chipre","Colombia":"Colombia","Comoras":"Comoras","Corea del Norte":"Corea del Norte",
-      "Corea del Sur":"Corea del Sur","Costa de Marfil":"Costa de Marfil","Costa Rica":"Costa Rica","Croacia":"Croacia","Cuba":"Cuba",
-      "Dinamarca":"Dinamarca","Dominica":"Dominica","Ecuador":"Ecuador","Egipto":"Egipto","El Salvador":"El Salvador","Emiratos Árabes Unidos":"Emiratos Árabes Unidos",
-      "Eritrea":"Eritrea","Eslovaquia":"Eslovaquia","Eslovenia":"Eslovenia","España":"España","Estados Unidos":"Estados Unidos","Estonia":"Estonia",
-      "Etiopía":"Etiopía","Fiyi":"Fiyi","Filipinas":"Filipinas","Finlandia":"Finlandia","Francia":"Francia","Gabón":"Gabón","Gambia":"Gambia",
-      "Georgia":"Georgia","Ghana":"Ghana","Granada":"Granada","Grecia":"Grecia","Guatemala":"Guatemala","Guinea":"Guinea","Guinea-Bisáu":"Guinea-Bisáu",
-      "Guinea Ecuatorial":"Guinea Ecuatorial","Guyana":"Guyana","Haití":"Haití","Honduras":"Honduras","Hungría":"Hungría","India":"India",
-      "Indonesia":"Indonesia","Irak":"Irak","Irán":"Irán","Irlanda":"Irlanda","Islandia":"Islandia","Israel":"Israel / Palestina",
-      "Italia":"Italia","Jamaica":"Jamaica","Japón":"Japón","Jordania":"Jordania","Kazajistán":"Kazajistán","Kenia":"Kenia","Kirguistán":"Kirguistán",
-      "Kiribati":"Kiribati","Kuwait":"Kuwait","Laos":"Laos","Lesoto":"Lesoto","Letonia":"Letonia","Líbano":"Líbano","Liberia":"Liberia",
-      "Libia":"Libia","Liechtenstein":"Liechtenstein","Lituania":"Lituania","Luxemburgo":"Luxemburgo","Macedonia del Norte":"Macedonia del Norte",
-      "Madagascar":"Madagascar","Malasia":"Malasia","Malaui":"Malaui","Maldivas":"Maldivas","Malí":"Malí","Malta":"Malta","Marruecos":"Marruecos",
-      "Marshall":"Islas Marshall","Mauricio":"Mauricio","Mauritania":"Mauritania","México":"México","Micronesia":"Micronesia","Moldavia":"Moldavia",
-      "Mónaco":"Mónaco","Mongolia":"Mongolia","Montenegro":"Montenegro","Mozambique":"Mozambique","Namibia":"Namibia","Nauru":"Nauru",
-      "Nepal":"Nepal","Nicaragua":"Nicaragua","Níger":"Níger","Nigeria":"Nigeria","Noruega":"Noruega","Nueva Zelanda":"Nueva Zelanda",
-      "Omán":"Omán","Países Bajos":"Países Bajos","Pakistán":"Pakistán","Palaos":"Palaos","Palestina":"Palestina","Panamá":"Panamá",
-      "Papúa Nueva Guinea":"Papúa Nueva Guinea","Paraguay":"Paraguay","Perú":"Perú","Polonia":"Polonia","Portugal":"Portugal","Reino Unido":"Reino Unido",
-      "República Centroafricana":"República Centroafricana","República Checa":"República Checa","República del Congo":"República del Congo",
-      "República Democrática del Congo":"Rep. Dem. del Congo","República Dominicana":"República Dominicana","Ruanda":"Ruanda","Rumanía":"Rumanía",
-      "Rusia":"Rusia","Samoa":"Samoa","San Cristóbal y Nieves":"San Cristóbal y Nieves","San Marino":"San Marino","San Vicente y las Granadinas":"San Vicente",
-      "Santa Lucía":"Santa Lucía","Santo Tomé y Príncipe":"Santo Tomé y Príncipe","Senegal":"Senegal","Serbia":"Serbia","Seychelles":"Seychelles",
-      "Sierra Leona":"Sierra Leona","Singapur":"Singapur","Siria":"Siria","Somalia":"Somalia","Sri Lanka":"Sri Lanka","Suazilandia":"Esuatini",
-      "Sudáfrica":"Sudáfrica","Sudán":"Sudán","Sudán del Sur":"Sudán del Sur","Suecia":"Suecia","Suiza":"Suiza","Surinam":"Surinam",
-      "Tailandia":"Tailandia","Taiwán":"Taiwán","Tanzania":"Tanzania","Tayikistán":"Tayikistán","Timor Oriental":"Timor Oriental","Togo":"Togo",
-      "Tonga":"Tonga","Trinidad y Tobago":"Trinidad y Tobago","Túnez":"Túnez","Turkmenistán":"Turkmenistán","Turquía":"Turquía","Tuvalu":"Tuvalu",
-      "Ucrania":"Ucrania","Uganda":"Uganda","Uruguay":"Uruguay","Uzbekistán":"Uzbekistán","Vanuatu":"Vanuatu","Vaticano":"Ciudad del Vaticano",
-      "Venezuela":"Venezuela","Vietnam":"Vietnam","Yemen":"Yemen","Yibuti":"Yibuti","Zambia":"Zambia","Zimbabue":"Zimbabue"
-    };
-
-    // Al tocar el mapa aparece un país aleatorio (simulación hasta que integremos detección real)
-    map.on('click', function(e) {
-      const countryList = Object.keys(countries);
-      const randomCountry = countryList[Math.floor(Math.random() * countryList.length)];
-      document.getElementById("countryName").textContent = randomCountry;
-      document.getElementById("popup").style.display = "block";
-    });
-
-    document.getElementById("close").onclick = () => {
-      document.getElementById("popup").style.display = "none";
-    };
-
-    document.getElementById("subscribe").onclick = () => {
-      const country = document.getElementById("countryName").textContent;
-      alert("¡Genial! Ya estás suscrito a " + country + " ✅\nRecibirás alertas en tiempo real.");
-      document.getElementById("popup").style.display = "none";
-    };
-  </script>
+  <script src="js/map.js"></script>
+  <script src="js/popup.js"></script>
 </body>
 </html>
