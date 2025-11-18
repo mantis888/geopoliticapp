@@ -1,1 +1,65 @@
-
+/* css/style.css */
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #0f172a;
+  color: #e2e8f0;
+  text-align: center;
+  padding: 20px;
+  min-height: 100vh;
+}
+header h1 {
+  font-size: 3.5em;
+  margin: 20px 0;
+  background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.subtitle { font-size: 1.3em; opacity: 0.9; margin: 15px 0; }
+#map-container {
+  width: 95vw;
+  max-width: 1100px;
+  height: 70vh;
+  margin: 30px auto;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+}
+#world-map { width: 100%; height: 100%; }
+path { cursor: pointer; transition: fill 0.3s; fill: #1e293b; stroke: #475569; stroke-width: 0.7; }
+path:hover { fill: #60a5fa !important; }
+#popup {
+  position: fixed;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  background: #1e293b;
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.7);
+  z-index: 9999;
+  display: none;
+  max-width: 90%;
+  text-align: center;
+}
+#popup h2 { margin: 0 0 15px; font-size: 2.5em; color: #60a5fa; }
+#subscribe-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 16px 36px;
+  border-radius: 14px;
+  font-size: 1.4em;
+  cursor: pointer;
+  margin: 20px 10px 0;
+}
+#close-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 12px;
+  font-size: 1.1em;
+  cursor: pointer;
+}
+.hidden { display: none; }
