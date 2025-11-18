@@ -1,39 +1,37 @@
-// js/map.js - Detecta el país clicado y abre el popup
+// js/map.js - Zoom + clic en países reales del SVG de SimpleMaps
 
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", () => {
   const mapObject = document.getElementById("world-map");
 
-  mapObject.addEventListener("load", function () {
+  mapObject.addEventListener("load", () => {
     const svgDoc = mapObject.contentDocument;
-    if (!svgDoc) return;
+    const svg = svgDoc.querySelector("svg");
 
-    // Añade evento a todos los <path> del SVG
-    const paths = svgDoc.querySelectorAll("path");
-    paths.forEach(path => {
-      path.style.cursor = "pointer";
+    // Activar zoom y pan
+    svgPanZoom(svg, {
+      zoomEnabled: true,
+      controlIconsEnabled: true,
+      fit: true,
+      center: true,
+      minZoom: 1,
+      maxZoom: 20
+    });
 
-      path.addEventListener("click", function () {
-        const countryName = this.getAttribute("data-name") || "este país";
-        document.getElementById("country-name").textContent = countryName;
+    // Clic en país
+    svgDoc.addEventListener("click", (e) => {
+      const path = e.target.closest("path");
+      if (path && path.getAttribute("data-name")) {
+        const country = path.getAttribute("data-name");
+        document.getElementById("country-name").textContent = country;
         document.getElementById("popup").classList.remove("hidden");
-      });
+      }
+    });
 
-      // Hover bonito
-      path.addEventListener("mouseenter", function () {
-        this.style.fill = "#60a5fa";
-      });
-      path.addEventListener("mouseleave", function () {
-        this.style.fill = "#1e293b";
-      });
+    // Hover bonito
+    svgDoc.querySelectorAll("path").forEach(p => {
+      p.style.transition = "fill 0.3s";
+      p.addEventListener("mouseenter", () => p.style.fill = "#60a5fa");
+      p.addEventListener("mouseleave", () => p.style.fill = "#1e293b");
     });
   });
 });
-// Ajuste para el mapa completo de simplemaps
-const svgDoc = mapObject.contentDocument;
-if (svgDoc) {
-  const paths = svgDoc.querySelectorAll("path[data-name]");
-  paths.forEach(path => {
-    const countryName = path.getAttribute("data-name");
-    path.setAttribute("title", countryName); // Para el popup
-  });
-}
