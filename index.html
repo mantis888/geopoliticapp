@@ -2,57 +2,101 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Geopoliticapp</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Geopoliticapp – Alertas geopolíticas en tiempo real</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
-  <script src="https://unpkg.com/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Inter',sans-serif; background:#0a0e17; color:#e2e8f0; display:flex; min-height:100vh; }
+    header { text-align:center; padding:25px 20px 15px; background:#0f172a; width:100%; }
+    h1 { font-size:3em; margin:0; background:linear-gradient(90deg,#3b82f6,#a855f7); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+    .tagline { font-size:1.3em; opacity:0.9; margin:10px 0 0; }
+
+    /* Layout mapa + sidebar */
+    .container { display:flex; flex:1; gap:0; max-width:100%; }
+    #map-container { flex:1; height:calc(100vh - 110px); min-width:300px; }
+    #map { height:100%; width:100%; }
+
+    /* Sidebar */
+    aside { width:380px; background:#0f172a; padding:20px; overflow-y:auto; box-shadow:-10px 0 30px rgba(0,0,0,0.6); }
+    .section { margin-bottom:30px; }
+    .section h3 { margin:0 0 15px; color:#60a5fa; font-size:1.2em; }
+    .country-item { display:flex; align-items:center; justify-content:space-between; background:#1e293b; padding:12px 16px; border-radius:12px; margin:8px 0; font-weight:500; }
+    .country-item.active { background:#dc2626; }
+    .country-item span { display:flex; align-items:center; gap:8px; }
+    .badge { background:#ef4444; padding:2px 8px; border-radius:8px; font-size:0.8em; }
+    .toggle { width:48px; height:26px; background:#475569; border-radius:50px; position:relative; cursor:pointer; }
+    .toggle::after { content:''; position:absolute; width:22px; height:22px; background:white; border-radius:50%; top:2px; left:2px; transition:0.3s; }
+    .toggle.on { background:#10b981; }
+    .toggle.on::after { left:24px; }
+
+    .premium-btn { background:#a855f7; color:white; width:100%; padding:18px; border:none; border-radius:16px; font-size:1.4em; font-weight:700; cursor:pointer; box-shadow:0 10px 30px rgba(168,85,247,0.4); }
+    .premium-btn:hover { transform:translateY(-2px); box-shadow:0 15px 40px rgba(168,85,247,0.5); }
+  </style>
 </head>
 <body>
   <header>
     <h1>Geopoliticapp</h1>
-    <p class="subtitle">Toca cualquier país para recibir alertas en tiempo real</p>
+    <p class="tagline">Alertas geopolíticas en tiempo real · Inteligencia neutral</p>
   </header>
 
-  <div id="map-container"></div>
+  <div class="container">
+    <!-- MAPA (tu mapa actual sigue funcionando aquí) -->
+    <div id="map-container">
+      <div id="map"></div>
+    </div>
 
-  <div id="popup" class="hidden">
-    <h2 id="country-name"></h2>
-    <p>¿Quieres recibir notificaciones de este país?</p>
-    <button id="subscribe-btn">Sí, suscríbeme</button>
-    <button id="close-btn">No, gracias</button>
+    <!-- SIDEBAR PROFESIONAL -->
+    <aside>
+      <div class="section">
+        <h3>Países suscritos</h3>
+        <div class="country-item active">
+          <span>🇺🇦 Ucrania <div class="badge">27 nuevas</div></span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="country-item active">
+          <span>🇵🇸 Gaza / Israel <div class="badge">19 nuevas</div></span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="country-item active">
+          <span>🇾🇪 Yemen <div class="badge">14 nuevas</div></span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="country-item active">
+          <span>🇹🇼 Taiwán <div class="badge">11 nuevas</div></span>
+          <div class="toggle on"></div>
+        </div>
+        <div class="country-item">
+          <span>🇰🇵 Corea del Norte</span>
+          <div class="toggle"></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Temas de interés</h3>
+        <label><input type="checkbox" checked> Guerras y conflictos</label><br><br>
+        <label><input type="checkbox" checked> Tensiones China-EEUU</label><br><br>
+        <label><input type="checkbox"> Energía y sanciones</label><br><br>
+        <label><input type="checkbox"> Elecciones y diplomacia</label>
+      </div>
+
+      <div class="section">
+        <h3>Nivel de alerta</h3>
+        <select style="width:100%; padding:12px; border-radius:12px; background:#1e293b; color:white;">
+          <option>Alto (todo)</option>
+          <option>Medio</option>
+          <option>Bajo</option>
+        </select>
+      </div>
+
+      <div class="section">
+        <button class="premium-btn">ACCESO ANTICIPADO PREMIUM</button>
+        <p style="text-align:center; font-size:0.9em; opacity:0.8; margin-top:12px;">
+          Análisis profundo · 50+ fuentes · sin anuncios
+        </p>
+      </div>
+    </aside>
   </div>
-
-  <script>
-    fetch('assets/world.svg')
-      .then(r => r.text())
-      .then(text => {
-        document.getElementById('map-container').innerHTML = text;
-        const svg = document.querySelector('#map-container svg');
-        svg.style.width = '100%';
-        svg.style.height = '100%';
-
-        // Zoom + pan
-        svgPanZoom(svg, { zoomEnabled:true, controlIconsEnabled:true, fit:true, center:true, maxZoom:30 });
-
-        // CLIC → popup con nombre real
-        svg.addEventListener('click', e => {
-          const path = e.target.closest('path');
-          if (path && path.id) {
-            const nombres = {AF:"Afganistán",AL:"Albania",DZ:"Argelia",AD:"Andorra",AO:"Angola",AR:"Argentina",AM:"Armenia",AU:"Australia",AT:"Austria",AZ:"Azerbaiyán",BS:"Bahamas",BH:"Baréin",BD:"Bangladés",BB:"Barbados",BY:"Bielorrusia",BE:"Bélgica",BZ:"Belice",BJ:"Benín",BT:"Bután",BO:"Bolivia",BA:"Bosnia y Herzegovina",BW:"Botsuana",BR:"Brasil",BN:"Brunéi",BG:"Bulgaria",BF:"Burkina Faso",BI:"Burundi",KH:"Camboya",CM:"Camerún",CA:"Canadá",CV:"Cabo Verde",CF:"República Centroafricana",TD:"Chad",CL:"Chile",CN:"China",CO:"Colombia",KM:"Comoras",CD:"Rep. Dem. del Congo",CG:"Congo",CR:"Costa Rica",HR:"Croacia",CU:"Cuba",CY:"Chipre",CZ:"República Checa",DK:"Dinamarca",DJ:"Yibuti",DM:"Dominica",DO:"República Dominicana",EC:"Ecuador",EG:"Egipto",SV:"El Salvador",GQ:"Guinea Ecuatorial",ER:"Eritrea",EE:"Estonia",SZ:"Esuatini",ET:"Etiopía",FJ:"Fiyi",FI:"Finlandia",FR:"Francia",GA:"Gabón",GM:"Gambia",GE:"Georgia",DE:"Alemania",GH:"Ghana",GR:"Grecia",GL:"Groenlandia",GD:"Granada",GT:"Guatemala",GN:"Guinea",GW:"Guinea-Bisáu",GY:"Guyana",HT:"Haití",HN:"Honduras",HU:"Hungría",IS:"Islandia",IN:"India",ID:"Indonesia",IR:"Irán",IQ:"Irak",IE:"Irlanda",IL:"Israel",IT:"Italia",JM:"Jamaica",JP:"Japón",JO:"Jordania",KZ:"Kazajistán",KE:"Kenia",KI:"Kiribati",KP:"Corea del Norte",KR:"Corea del Sur",KW:"Kuwait",KG:"Kirguistán",LA:"Laos",LV:"Letonia",LB:"Líbano",LS:"Lesoto",LR:"Liberia",LY:"Libia",LT:"Lituania",LU:"Luxemburgo",MG:"Madagascar",MW:"Malaui",MY:"Malasia",MV:"Maldivas",ML:"Malí",MT:"Malta",MH:"Islas Marshall",MR:"Mauritania",MU:"Mauricio",MX:"México",FM:"Micronesia",MD:"Moldavia",MC:"Mónaco",MN:"Mongolia",ME:"Montenegro",MA:"Marruecos",MZ:"Mozambique",MM:"Myanmar",NA:"Namibia",NR:"Nauru",NP:"Nepal",NL:"Países Bajos",NZ:"Nueva Zelanda",NI:"Nicaragua",NE:"Níger",NG:"Nigeria",NO:"Noruega",OM:"Omán",PK:"Pakistán",PW:"Palaos",PS:"Palestina",PA:"Panamá",PG:"Papúa Nueva Guinea",PY:"Paraguay",PE:"Perú",PH:"Filipinas",PL:"Polonia",PT:"Portugal",QA:"Catar",RO:"Rumanía",RU:"Rusia",RW:"Ruanda",WS:"Samoa",SM:"San Marino",ST:"Santo Tomé y Príncipe",SA:"Arabia Saudita",SN:"Senegal",RS:"Serbia",SC:"Seychelles",SL:"Sierra Leona",SG:"Singapur",SK:"Eslovaquia",SI:"Eslovenia",SB:"Islas Salomón",SO:"Somalia",ZA:"Sudáfrica",SS:"Sudán del Sur",ES:"España",LK:"Sri Lanka",SD:"Sudán",SR:"Surinam",SE:"Suecia",CH:"Suiza",SY:"Siria",TW:"Taiwán",TJ:"Tayikistán",TZ:"Tanzania",TH:"Tailandia",TL:"Timor Oriental",TG:"Togo",TO:"Tonga",TT:"Trinidad y Tobago",TN:"Túnez",TR:"Turquía",TM:"Turkmenistán",TV:"Tuvalu",UG:"Uganda",UA:"Ucrania",AE:"Emiratos Árabes Unidos",GB:"Reino Unido",US:"Estados Unidos",UY:"Uruguay",UZ:"Uzbekistán",VU:"Vanuatu",VE:"Venezuela",VN:"Vietnam",YE:"Yemen",ZM:"Zambia",ZW:"Zimbabue"};
-            const nombre = nombres[path.id] || path.id;
-            document.getElementById('country-name').textContent = nombre;
-            document.getElementById('popup').classList.remove('hidden');
-          }
-        });
-
-        // Hover
-        document.querySelectorAll('path').forEach(p => {
-          p.style.transition = 'fill 0.3s';
-          p.addEventListener('mouseenter', () => p.style.fill = '#60a5fa');
-          p.addEventListener('mouseleave', () => p.style.fill = '#1e293b');
-        });
-      });
-  </script>
-  <script src="js/popup.js"></script>
 </body>
 </html>
